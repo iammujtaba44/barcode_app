@@ -63,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
         centerTitle: true,
       ),
       body: ViewModelBuilder<HomeViewModel>.reactive(
-        viewModelBuilder:()=> HomeViewModel(homeService: _service),
+        viewModelBuilder: () => HomeViewModel(homeService: _service),
         builder: (context, model, child) {
           if (model.initialised)
             return MyLoader(
@@ -93,11 +93,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         onChanged: (value) {
                           _service.mark_as = value;
                           controller.resumeCamera();
-
                         },
                         activeColor: Colors.green,
                         fillColor: MaterialStateColor.resolveWith(
-                                (states) => AppTheme.COLOR_PRESENT),
+                            (states) => AppTheme.COLOR_PRESENT),
                       ),
 
                       Container(
@@ -106,7 +105,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: TextStyle(
                             color: AppTheme.COLOR_PRESENT,
                             fontFamily: 'Times',
-                            fontSize: APPUTILS.getFontSizeByHeight(context, 0.02),
+                            fontSize:
+                                APPUTILS.getFontSizeByHeight(context, 0.02),
                             fontWeight: FontWeight.w400,
                           ),
                         ),
@@ -121,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                         activeColor: Colors.green,
                         fillColor: MaterialStateColor.resolveWith(
-                                (states) => AppTheme.COLOR_ABSENT),
+                            (states) => AppTheme.COLOR_ABSENT),
                       ),
                       Container(
                         child: Text(
@@ -129,7 +129,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: TextStyle(
                             color: AppTheme.COLOR_ABSENT,
                             fontFamily: 'Times',
-                            fontSize: APPUTILS.getFontSizeByHeight(context, 0.02),
+                            fontSize:
+                                APPUTILS.getFontSizeByHeight(context, 0.02),
                             fontWeight: FontWeight.w400,
                           ),
                         ),
@@ -159,7 +160,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             style: TextStyle(
                               color: AppTheme.PRIMARY_COLOR_BLUE_OPS,
                               fontFamily: 'Times',
-                              fontSize: APPUTILS.getFontSizeByHeight(context, .02),
+                              fontSize:
+                                  APPUTILS.getFontSizeByHeight(context, .02),
                               fontWeight: FontWeight.w400,
                             ),
                           ),
@@ -167,11 +169,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         //  Spacer(),
                         Container(
                           child: Text(
-                            '${_service.date.toString().substring(0,10)}',
+                            '${_service.date.toString().substring(0, 10)}',
                             style: TextStyle(
                               color: AppTheme.GREY,
                               fontFamily: 'Times',
-                              fontSize: APPUTILS.getFontSizeByHeight(context, .02),
+                              fontSize:
+                                  APPUTILS.getFontSizeByHeight(context, .02),
                               fontWeight: FontWeight.w400,
                             ),
                           ),
@@ -204,23 +207,35 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _onQRViewCreated(QRViewController controller) {
     this.controller = controller;
-    controller.scannedDataStream.listen((scanData) {
-      if(_service.mark_as == null)
-        {
-          APPUTILS.mySnackBar(msg: "Please select IN/OUT");
-          controller.pauseCamera();
-        }
-      else
-        {
-          print(scanData);
-          print(scanData.code);
-          print(scanData.format);
+    controller.scannedDataStream.listen((scanData) async {
+      if (_service.mark_as == null) {
+        APPUTILS.mySnackBar(msg: "Please select IN/OUT");
+        controller.pauseCamera();
+      } else {
+        print(scanData.code);
+        controller.stopCamera();
+        ApiResponse res = await _service
+            .mark_attendance(url: scanData.code.trim(), body: <String, String>{
+          'date': _service.date.toString().substring(0, 10),
+          'attendance_type': _service.mark_as == 1 ? 'timeIn' : 'timeout',
+          'remarks': ''
+        });
 
+        if (res.success) {
           controller.stopCamera();
           controller.dispose();
-          Get.back();
+          Get.back(result: 'a');
+          APPUTILS.mySnackBar(msg: res.msg);
+        } else {
+          controller.stopCamera();
+          controller.dispose();
+          Get.back(result: 'a');
+          APPUTILS.mySnackBar(msg: res.msg);
+          // if (res.status == 401) {
+          // } else
+          //   controller.resumeCamera();
         }
-
+      }
     });
   }
 
@@ -281,7 +296,7 @@ class _HomeScreenState extends State<HomeScreen> {
       });
   }
 
-   getDatePicker(double height) {
+  getDatePicker(double height) {
     return DatePicker.showDatePicker(context,
         showTitleActions: true,
         minTime: DateTime.now().subtract(Duration(days: 360)),
@@ -302,11 +317,9 @@ class _HomeScreenState extends State<HomeScreen> {
               fontWeight: FontWeight.w400,
             ),
             headerColor: AppTheme.background), onChanged: (date) {
-         // print('change $date');
-        }, onConfirm: (date) {
-          _service.date = date;
-        }, currentTime: _service.date, locale: LocaleType.en);
+      // print('change $date');
+    }, onConfirm: (date) {
+      _service.date = date;
+    }, currentTime: _service.date, locale: LocaleType.en);
   }
-
-
 }

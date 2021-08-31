@@ -28,4 +28,9 @@ class HomeService extends ChangeNotifier
     return response;
   }
 
-}
+  Future<ApiResponse> mark_attendance({Map<String,String>? body,String? url}) async {
+
+    ApiResponse response = await _api.mark_attendance(Url: url,body: body);
+    return response;
+  }
+} 

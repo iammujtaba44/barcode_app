@@ -1,0 +1,4 @@
+io/flutter/plugins/GeneratedPluginRegistrant.java
+ io.flutter.plugins.GeneratedPluginRegistrant
+com/geeksunit/barcode_app/BuildConfig.java
+ com.geeksunit.barcode_app.BuildConfig

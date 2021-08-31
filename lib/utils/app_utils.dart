@@ -93,3 +93,60 @@ offset: Offset(1.1, 1.1),
 blurRadius: 10.0),
 ],
 );
+
+class ErrorView extends StatelessWidget {
+   ErrorView({
+    Key? key,
+    required this.res,
+   required this.onTap
+  }) : super(key: key);
+
+  final ApiResponse res;
+  Function()? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+        child: Container(
+      alignment: Alignment.center,
+      padding: EdgeInsets.all(22),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Spacer(),
+          Expanded(
+            child: Container(
+              child: Text(
+                '${res.msg}',
+                style: TextStyle(
+                  color: AppTheme.lightText,
+                  fontFamily: 'Times',
+                  fontSize: APPUTILS.getFontSizeByHeight(context, .03),
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 10,
+          ),
+          InkWell(
+            onTap: onTap,
+            child: Container(
+              child: Text(
+                'Try Again',
+                style: TextStyle(
+                  color: AppTheme.COLOR_REDISH,
+                  fontFamily: 'Times',
+                  fontSize: APPUTILS.getFontSizeByHeight(context, .03),
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    ));
+  }
+}

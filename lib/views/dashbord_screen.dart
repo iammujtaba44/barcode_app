@@ -1,3 +1,4 @@
+import 'package:barcode_app/core/models/attendance_model.dart';
 import 'package:barcode_app/utils/plugins.dart';
 import 'package:barcode_app/utils/tile_view.dart';
 import 'package:barcode_app/views/home_screen.dart';
@@ -15,15 +16,24 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
   final GlobalKey<SfCircularChartState> _circularChartKey = GlobalKey();
   late HomeService _homeService;
   late AuthenticationService _authenticationService;
-  final List<ChartSampleData> chartData = <ChartSampleData>[
-    ChartSampleData(x: 'Present', y: 25, text: '25%'),
-    ChartSampleData(x: 'Late', y: 4, text: '4%'),
-    ChartSampleData(x: 'Absent', y: 14, text: '14%'),
-    ChartSampleData(x: 'Half Day', y: 10, text: '10%'),
-    ChartSampleData(x: 'Total Present', y: 15, text: '15%'),
-    ChartSampleData(x: 'Total Absent', y: 7, text: '7%'),
-    ChartSampleData(x: 'Total Half Day', y: 25, text: '25%'),
-  ];
+  ApiResponse res = ApiResponse();
+  late AttendanceModelData _data = AttendanceModelData();
+  List<ChartSampleData> chartData = <ChartSampleData>[];
+  late HomeViewModel _model;
+  //   ChartSampleData(x: 'Present', y: 25, text: '25%'),
+  //   ChartSampleData(x: 'Late', y: 4, text: '4%'),
+  //   ChartSampleData(x: 'Absent', y: 14, text: '14%'),
+  //   ChartSampleData(x: 'Half Day', y: 10, text: '10%'),
+  //   ChartSampleData(x: 'Total Present', y: 15, text: '15%'),
+  //   ChartSampleData(x: 'Total Absent', y: 7, text: '7%'),
+  //   ChartSampleData(x: 'Total Half Day', y: 25, text: '25%'),
+  // ];
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -31,7 +41,6 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
     _homeService = context.watch();
     _authenticationService = context.watch();
     return Scaffold(
-
         appBar: AppBar(
           backgroundColor: AppTheme.PRIMARY_COLOR_BLUE_OPS,
           title: Text('Attendance'),
@@ -41,194 +50,249 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
         floatingActionButton: _FAB(),
         backgroundColor: AppTheme.background,
         body: ViewModelBuilder<HomeViewModel>.reactive(
-
-            builder: (context, model, child) {
-              if (model.initialised)
-                return MyLoader(
-                  color: AppTheme.PRIMARY_COLOR_BLUE_OPS,
-                );
-              return SingleChildScrollView(
-                child: Column(children: <Widget>[
-                  SizedBox(height: height*0.05,),
-                  TitleView(
-                    titleTxt: 'User',
-                    subTxt: 'Role',
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(
-                        left: 24, right: 24, top: 5, bottom: 18),
-                    padding: EdgeInsets.all(10),
-                    decoration: getCardDecorationWithLessRound,
-                    child: Row(
-                      children: [
-                        Container(
-                          child: Text(
-                            '${_authenticationService.user.name}',
-                            style: TextStyle(
-                                color: AppTheme.lightText,
-                                fontFamily: 'Times',
-                                fontSize: 22,
-                                fontWeight: FontWeight.w400,
-                                fontStyle: FontStyle.italic),
-                          ),
-                        ),
-                        Spacer(),
-                        Container(
-                          child: Text(
-                            '${_authenticationService.user.role}',
-                            style: TextStyle(
-                                color: AppTheme.lightText,
-                                fontFamily: 'Times',
-                                fontSize: 22,
-                                fontWeight: FontWeight.w400,
-                                fontStyle: FontStyle.italic),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  TitleView(
-                    titleTxt: 'All Feature',
-                    subTxt: 'All Statistics',
-                  ),
-                  _buildCircularChart(),
-                  TitleView(
-                    titleTxt: 'Detail view',
-                    subTxt: '',
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(
-                        left: 24, right: 24, top: 16, bottom: 18),
-                    decoration: getCardDecoration,
-                    child: Row(
-                      children: [
-                        Expanded(
-                            child: SizedBox(
-                                height: 200,
-                                child: _buildGauge(
-                                    barColor: AppTheme.COLOR_PRESENT,value: chartData[0].y!.toDouble(),middleText: 'Present'))),
-                        Expanded(
-                            child: SizedBox(
-                                height: 200,
-                                child:
-                                    _buildGauge(barColor: AppTheme.COLOR_LATE,value: chartData[1].y!.toDouble(),middleText: 'Late'))),
-                      ],
-                    ),
-                  ),
-                  // TitleView(
-                  //   titleTxt: 'Absent',
-                  //   subTxt: 'Half Day',
-                  // ),
-                  Container(
-                    margin: const EdgeInsets.only(
-                        left: 24, right: 24, bottom: 18),
-                    decoration: getCardDecoration,
-                    child: Row(
-                      children: [
-                        Expanded(
-                            child: SizedBox(
-                                height: 200,
-                                child: _buildGauge(
-                                    barColor: AppTheme.COLOR_ABSENT,value: chartData[2].y!.toDouble(),
-                                    middleText: 'Absent'))),
-                        Expanded(
-                            child: SizedBox(
-                                height: 200,
-                                child: _buildGauge(
-                                    barColor: AppTheme.COLOR_HALFDAY,value: chartData[3].y!.toDouble(),
-                                    middleText: 'Half Day'))),
-                      ],
-                    ),
-                  ),
-                  // TitleView(
-                  //   titleTxt: 'Total Present',
-                  //   subTxt: 'Total Absent',
-                  // ),
-                  Container(
-                    margin: const EdgeInsets.only(
-                        left: 24, right: 24, bottom: 18),
-                    decoration: getCardDecoration,
-                    child: Row(
-                      children: [
-                        Expanded(
-                            child: SizedBox(
-                                height: 200,
-                                child: _buildGauge(
-                                    barColor: AppTheme.COLOR_TOTAL_PRESENT,value: chartData[4].y!.toDouble(),
-                                    middleText: 'Total\nPresent'))),
-                        Expanded(
-                            child: SizedBox(
-                                height: 200,
-                                child: _buildGauge(
-                                    barColor: AppTheme.COLOR_TOTAL_ABSENT,value: chartData[5].y!.toDouble(),
-                                    middleText: 'Total\nAbsent'))),
-                      ],
-                    ),
-                  ),
-                  // TitleView(
-                  //   titleTxt: 'Total Half Day',
-                  //   subTxt: '',
-                  // ),
-                  Container(
-                    margin: const EdgeInsets.only(
-                        left: 24, right: 24, bottom: 18),
-                    decoration: getCardDecoration,
-                    child: SizedBox(
-                        height: 200,
-                        child:
-                            _buildGauge(barColor: AppTheme.COLOR_TOTAL_HALFDAY,value: chartData[6].y!.toDouble(),
-                                middleText: 'Total\nHalf Day')),
-                  ),
-                ]),
+          builder: (context, model, child) {
+            if (model.initialised)
+              return MyLoader(
+                color: AppTheme.PRIMARY_COLOR_BLUE_OPS,
               );
-            },
-            viewModelBuilder: () => HomeViewModel(homeService: _homeService),
-        onModelReady: (model)async{
-             //  model.setInitialised(true);
-             // await model.get_attendance();
-             //  model.setInitialised(false);
+            else if (res.success == false) {
+              return ErrorView(
+                res: res,
+                onTap: () {
+                  getApiHit(model);
+                },
+              );
+            }
+            return SingleChildScrollView(
+              child: Column(children: <Widget>[
+                SizedBox(
+                  height: height * 0.05,
+                ),
+                TitleView(
+                  titleTxt: 'User',
+                  subTxt: 'Role',
+                ),
+                Container(
+                  margin: const EdgeInsets.only(
+                      left: 24, right: 24, top: 5, bottom: 18),
+                  padding: EdgeInsets.all(10),
+                  decoration: getCardDecorationWithLessRound,
+                  child: Row(
+                    children: [
+                      Container(
+                        child: Text(
+                          '${_authenticationService.user.name}',
+                          style: TextStyle(
+                              color: AppTheme.lightText,
+                              fontFamily: 'Times',
+                              fontSize: 22,
+                              fontWeight: FontWeight.w400,
+                              fontStyle: FontStyle.italic),
+                        ),
+                      ),
+                      Spacer(),
+                      Container(
+                        child: Text(
+                          '${_authenticationService.user.role}',
+                          style: TextStyle(
+                              color: AppTheme.lightText,
+                              fontFamily: 'Times',
+                              fontSize: 22,
+                              fontWeight: FontWeight.w400,
+                              fontStyle: FontStyle.italic),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
 
-        },
+                TitleView(
+                  titleTxt: 'All Feature',
+                  subTxt: 'All Statistics',
+                ),
+                _buildCircularChart(),
+                TitleView(
+                  titleTxt: 'Detail view',
+                  subTxt: '',
+                ),
+                Container(
+                  margin: const EdgeInsets.only(
+                      left: 24, right: 24, top: 16, bottom: 18),
+                  decoration: getCardDecoration,
+                  child: Row(
+                    children: [
+                      Expanded(
+                          child: SizedBox(
+                              height: 200,
+                              child: _buildGauge(
+                                  barColor: AppTheme.COLOR_PRESENT,
+                                  value: chartData[0].y!.toDouble(),
+                                  middleText: 'Present',
+                                  intialValue: 0.0,
+                                  finalValue: 100.0))),
+                      Expanded(
+                          child: SizedBox(
+                              height: 200,
+                              child: _buildGauge(
+                                  barColor: AppTheme.COLOR_LATE,
+                                  value: chartData[1].y!.toDouble(),
+                                  middleText: 'Late',
+                                  intialValue: 0.0,
+                                  finalValue: 100.0))),
+                    ],
+                  ),
+                ),
+                // TitleView(
+                //   titleTxt: 'Absent',
+                //   subTxt: 'Half Day',
+                // ),
+                Container(
+                  margin:
+                      const EdgeInsets.only(left: 24, right: 24, bottom: 18),
+                  decoration: getCardDecoration,
+                  child: Row(
+                    children: [
+                      Expanded(
+                          child: SizedBox(
+                              height: 200,
+                              child: _buildGauge(
+                                  barColor: AppTheme.COLOR_ABSENT,
+                                  value: chartData[2].y!.toDouble(),
+                                  middleText: 'Absent',
+                                  intialValue: 0.0,
+                                  finalValue: 100.0))),
+                      Expanded(
+                          child: SizedBox(
+                              height: 200,
+                              child: _buildGauge(
+                                  barColor: AppTheme.COLOR_HALFDAY,
+                                  value: chartData[3].y!.toDouble(),
+                                  middleText: 'Half Day',
+                                  intialValue: 0.0,
+                                  finalValue: 100.0))),
+                    ],
+                  ),
+                ),
+                // TitleView(
+                //   titleTxt: 'Total Present',
+                //   subTxt: 'Total Absent',
+                // ),
+                Container(
+                  margin:
+                      const EdgeInsets.only(left: 24, right: 24, bottom: 18),
+                  decoration: getCardDecoration,
+                  child: Row(
+                    children: [
+                      Expanded(
+                          child: SizedBox(
+                              height: 200,
+                              child: _buildGauge(
+                                  barColor: AppTheme.COLOR_TOTAL_PRESENT,
+                                  value: chartData[4].y!.toDouble(),
+                                  middleText: 'Total\nPresent',
+                                  intialValue: 0.0,
+                                  finalValue:
+                                      _data.getInt(_data.total)!.toDouble()))),
+                      Expanded(
+                          child: SizedBox(
+                              height: 200,
+                              child: _buildGauge(
+                                  barColor: AppTheme.COLOR_TOTAL_ABSENT,
+                                  value: chartData[5].y!.toDouble(),
+                                  middleText: 'Total\nAbsent',
+                                  intialValue: 0.0,
+                                  finalValue:
+                                      _data.getInt(_data.total)!.toDouble()))),
+                    ],
+                  ),
+                ),
+                // TitleView(
+                //   titleTxt: 'Total Half Day',
+                //   subTxt: '',
+                // ),
+                Container(
+                  margin:
+                      const EdgeInsets.only(left: 24, right: 24, bottom: 18),
+                  decoration: getCardDecoration,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: SizedBox(
+                            height: 200,
+                            child: _buildGauge(
+                                barColor: AppTheme.COLOR_TOTAL_HALFDAY,
+                                value: chartData[7].y!.toDouble(),
+                                middleText: 'Total\nAbsent',
+                                intialValue: 0.0,
+                                finalValue:
+                                    _data.getInt(_data.total)!.toDouble())),
+                      ),
+                      Expanded(
+                        child: SizedBox(
+                            height: 200,
+                            child: _buildGauge(
+                                barColor: AppTheme.COLOR_TOTAL_HALFDAY,
+                                value: chartData[6].y!.toDouble(),
+                                middleText: 'Total\nHalf Day',
+                                intialValue: 0.0,
+                                finalValue:
+                                    _data.getInt(_data.total)!.toDouble())),
+                      ),
+                    ],
+                  ),
+                ),
+              ]),
+            );
+          },
+          viewModelBuilder: () => HomeViewModel(homeService: _homeService),
+          onModelReady: (model) async {
+            _model = model;
+            getApiHit(model);
+          },
         ));
   }
-Widget _FAB()=> Column(
-  mainAxisAlignment: MainAxisAlignment.end,
-  children: [
-    FloatingActionButton(
-      onPressed: (){
-        Get.to(()=> HomeScreen());
-      },
-      tooltip: 'Scan',
-      heroTag: 'scan',
-      backgroundColor: AppTheme.COLOR_REDISH,
-      elevation: APPUTILS.getFontSizeByHeight(context, .02),
-      highlightElevation:APPUTILS.getFontSizeByHeight(context, .09),
-      splashColor: AppTheme.PRIMARY_COLOR_BLUE_OPS,
-      child: Icon(
-        Icons.qr_code_scanner_sharp,
-        size: APPUTILS.getFontSizeByHeight(context, .03),
-      ),
-    ),
-    SizedBox(height: APPUTILS.getFontSizeByHeight(context, .02),),
-    FloatingActionButton(
-      onPressed: (){
-        _authenticationService.setLoggedOutStatus();
-        //  Get.to(()=> HomeScreen());
-      },
-      tooltip: 'Log out',
-      heroTag: 'log_out',
-      backgroundColor: Colors.red.withOpacity(0.9),
-      elevation: APPUTILS.getFontSizeByHeight(context, .02),
-      highlightElevation:APPUTILS.getFontSizeByHeight(context, .09),
-      splashColor: AppTheme.PRIMARY_COLOR_BLUE_OPS,
-      child: Icon(
-        Icons.logout,
-        size: APPUTILS.getFontSizeByHeight(context, .03),
-      ),
-    ),
-  ],
-);
+
+  Widget _FAB() => Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: () {
+              Get.to(() => HomeScreen())!.then((value) {
+                getApiHit(_model);
+              });
+            },
+            tooltip: 'Scan',
+            heroTag: 'scan',
+            backgroundColor: AppTheme.COLOR_REDISH,
+            elevation: APPUTILS.getFontSizeByHeight(context, .02),
+            highlightElevation: APPUTILS.getFontSizeByHeight(context, .09),
+            splashColor: AppTheme.PRIMARY_COLOR_BLUE_OPS,
+            child: Icon(
+              Icons.qr_code_scanner_sharp,
+              size: APPUTILS.getFontSizeByHeight(context, .03),
+            ),
+          ),
+          SizedBox(
+            height: APPUTILS.getFontSizeByHeight(context, .02),
+          ),
+          FloatingActionButton(
+            onPressed: () {
+              _authenticationService.setLoggedOutStatus();
+              //  Get.to(()=> HomeScreen());
+            },
+            tooltip: 'Log out',
+            heroTag: 'log_out',
+            backgroundColor: Colors.red.withOpacity(0.9),
+            elevation: APPUTILS.getFontSizeByHeight(context, .02),
+            highlightElevation: APPUTILS.getFontSizeByHeight(context, .09),
+            splashColor: AppTheme.PRIMARY_COLOR_BLUE_OPS,
+            child: Icon(
+              Icons.logout,
+              size: APPUTILS.getFontSizeByHeight(context, .03),
+            ),
+          ),
+        ],
+      );
   // SpeedDial _FAB(double height) {
   //   return SpeedDial(
   //   animatedIcon: AnimatedIcons.menu_close,
@@ -276,8 +340,7 @@ Widget _FAB()=> Column(
   /// Get default circular chart
   Widget _buildCircularChart() {
     return Padding(
-      padding: const EdgeInsets.only(
-          left: 24, right: 24, top: 16, bottom: 18),
+      padding: const EdgeInsets.only(left: 24, right: 24, top: 16, bottom: 18),
       child: Container(
         decoration: getCardDecoration,
         child: SfCircularChart(
@@ -323,7 +386,6 @@ Widget _FAB()=> Column(
 
   /// Get default circular series
   List<CircularSeries<ChartSampleData, String>> _getDefaultCircularSeries() {
-
     return <CircularSeries<ChartSampleData, String>>[
       DoughnutSeries<ChartSampleData, String>(
           dataSource: chartData,
@@ -344,7 +406,8 @@ Widget _FAB()=> Column(
       {dynamic value = 50.0,
       dynamic intialValue = 0.0,
       dynamic finalValue = 100.0,
-      Color barColor = AppTheme.COLOR_REDISH,String middleText = 'text'}) {
+      Color barColor = AppTheme.COLOR_REDISH,
+      String middleText = 'text'}) {
     return SfRadialGauge(
       axes: <RadialAxis>[
         RadialAxis(
@@ -364,39 +427,45 @@ Widget _FAB()=> Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Container(
-                          child: Text(
-                            '$value',
-                            style: TextStyle(
-                                fontFamily: 'Times',
-                                fontSize: APPUTILS.getFontSizeByHeight(context, 0.02),
-                                fontWeight: FontWeight.w400,
-                                fontStyle: FontStyle.italic),
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Container(
+                            child: Text(
+                              '$value',
+                              style: TextStyle(
+                                  fontFamily: 'Times',
+                                  fontSize: APPUTILS.getFontSizeByHeight(
+                                      context, 0.02),
+                                  fontWeight: FontWeight.w400,
+                                  fontStyle: FontStyle.italic),
+                            ),
                           ),
-                        ),
-                        Container(
-                          child: Text(
-                            ' / $finalValue',
-                            style: TextStyle(
-                                fontFamily: 'Times',
-                                fontSize: APPUTILS.getFontSizeByHeight(context, 0.02),
-                                fontWeight: FontWeight.w400,
-                                fontStyle: FontStyle.italic),
-                          ),
-                        )
-                      ],
-                    ),
-                      SizedBox(height: 5,),
+                          Container(
+                            child: Text(
+                              ' / $finalValue',
+                              style: TextStyle(
+                                  fontFamily: 'Times',
+                                  fontSize: APPUTILS.getFontSizeByHeight(
+                                      context, 0.02),
+                                  fontWeight: FontWeight.w400,
+                                  fontStyle: FontStyle.italic),
+                            ),
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
                       Container(
                         child: Text(
                           '$middleText',
                           style: TextStyle(
                             color: AppTheme.lightText,
-                              fontFamily: 'Times',
-                              fontSize: APPUTILS.getFontSizeByHeight(context, 0.02),
-                              fontWeight: FontWeight.w400,),
+                            fontFamily: 'Times',
+                            fontSize:
+                                APPUTILS.getFontSizeByHeight(context, 0.02),
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
                       ),
                     ],
@@ -489,4 +558,52 @@ Widget _FAB()=> Column(
   }
 
   double _markerValue = 138;
+
+  Future<void> getApiHit(HomeViewModel model) async {
+    model.setInitialised(true);
+    res = await model.get_attendance();
+    if (res.success) {
+      AttendanceModel t = AttendanceModel.fromJson(res.data);
+      setState(() {
+        _data = t.data!;
+
+        _data.getPresent();
+        chartData = <ChartSampleData>[
+          ChartSampleData(
+              x: 'Present',
+              y: _data.getPresent(),
+              text: '${_data.present ?? '0'}'),
+          ChartSampleData(
+              x: 'Late', y: _data.getLate(), text: '${_data.late ?? '0'}'),
+          ChartSampleData(
+              x: 'Absent',
+              y: _data.getAbsent(),
+              text: '${_data.absent ?? '0'}'),
+          ChartSampleData(
+              x: 'Half Day',
+              y: _data.getHalfDay(),
+              text: '${_data.halfDay ?? '0'}'),
+          ChartSampleData(
+              x: 'Total Present',
+              y: _data.getInt(_data.totalPresent),
+              text: '${_data.totalPresent ?? '0'}'),
+          ChartSampleData(
+              x: 'Total Absent',
+              y: _data.getInt(_data.totalAbsent),
+              text: '${_data.totalAbsent ?? '0'}'),
+          ChartSampleData(
+              x: 'Total Late',
+              y: _data.getInt(_data.totalLate),
+              text: '${_data.totalLate ?? '0'}'),
+          ChartSampleData(
+              x: 'Total Half Day',
+              y: _data.getInt(_data.totalHalfDay),
+              text: '${_data.totalHalfDay ?? '0'}'),
+        ];
+      });
+    }
+
+    print(chartData[0].y);
+    model.setInitialised(false);
+  }
 }

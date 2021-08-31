@@ -31,23 +31,13 @@ class _LoginScrennState extends State<LoginScrenn> {
 
     });
     print(res);
-    if(res.success)
+    if(res.success && res.data != null)
       {
         return null;
       }
     else
      return res.msg.toString();
       // return 'User not exists';
-
-    return Future.delayed(loginTime).then((_) {
-      if (!users.containsKey(data.name)) {
-        return 'User not exists';
-      }
-      if (users[data.name] != data.password) {
-        return 'Password does not match';
-      }
-      return null;
-    });
   }
 
   Future<String?> _recoverPassword(String name) {
@@ -56,7 +46,7 @@ class _LoginScrennState extends State<LoginScrenn> {
       if (!users.containsKey(name)) {
         return 'User not exists';
       }
-      return null;
+      // return null;
     });
   }
 
